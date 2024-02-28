@@ -1,90 +1,127 @@
-import tkinter as tk
-from tkinter import messagebox
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QPushButton, QMessageBox
+from PyQt5.QtGui import QIcon, QFont, QPixmap
+from PyQt5.QtCore import Qt, QTimer
 import random
 
+motivational_quotes = [
+    "You're beautiful, keep going!",
+    "You're doing great!",
+    "Wow! So good!",
+    "Great job!",
+    "Woo!",
+    "YEAAH! YOU'RE SO GOOD",
+    "Smarty pants",
+    ":)",
+    "Wow",
+    "Amazing math skills"
+]
 
-class MathGame:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Simple Math Game")
-        self.root.geometry("400x200")
+class MathGame(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Simple Math Game")
+        self.setWindowIcon(QIcon('doomed.ico'))  # Set the GIF as the program's icon
+        self.setGeometry(100, 100, 400, 250)
 
         self.current_color = "white"
         self.fade_speed = 0.1
         self.cheat_uses = 5
 
-        self.question_label = tk.Label(root, text="", font=("Arial", 24))
-        self.question_label.pack()
+        self.question_label = QLabel(self)
+        self.question_label.setGeometry(20, 20, 360, 50)
+        self.question_label.setAlignment(Qt.AlignCenter)
 
-        self.answer_entry = tk.Entry(root, font=("Arial", 18))
-        self.answer_entry.pack()
+        self.motivational_label = QLabel(self)
+        self.motivational_label.setGeometry(20, 80, 360, 50)
+        self.motivational_label.setAlignment(Qt.AlignCenter)
 
-        self.check_button = tk.Button(root, text="Check", command=self.check_answer)
-        self.check_button.pack()
+        self.answer_entry = QLineEdit(self)
+        self.answer_entry.setGeometry(20, 140, 360, 40)
+        self.answer_entry.setFont(QFont(self.answer_entry.font().family(), self.answer_entry.font().pointSize() * 2))
+        self.answer_entry.setStyleSheet("background-color: white;")
 
-        self.cheat_button = tk.Button(root, text="Cheat", command=self.cheat_answer)
-        self.cheat_button.pack()
+        self.check_button = QPushButton("Check", self)
+        self.check_button.setGeometry(20, 190, 100, 40)
+        self.check_button.clicked.connect(self.check_answer)
 
-        self.cheat_counter_label = tk.Label(root, text=f"Cheat uses left: {self.cheat_uses}", font=("Arial", 12))
-        self.cheat_counter_label.pack()
+        self.cheat_button = QPushButton("Cheat", self)
+        self.cheat_button.setGeometry(130, 190, 100, 40)
+        self.cheat_button.clicked.connect(self.cheat_answer)
+
+        self.cheat_counter_label = QLabel(self)
+        self.cheat_counter_label.setGeometry(240, 190, 140, 40)
+        self.cheat_counter_label.setAlignment(Qt.AlignCenter)
+        self.update_cheat_counter()
+
+        self.generate_question_timer = QTimer(self)
+        self.generate_question_timer.timeout.connect(self.generate_question)
+
+        self.answer_color_timer = QTimer(self)
+        self.answer_color_timer.timeout.connect(self.reset_color)
 
         self.generate_question()
 
     def generate_question(self):
         num1 = random.randint(1, 5000)
         num2 = random.randint(1, 5000)
-        operator = random.choice(['+', '*'])  # Addition or multiplication only
+        operator = random.choice(['+', '*'])
         question = f"{num1} {operator} {num2}"
         self.answer = eval(question)
-        self.question_label.config(text=question)
+        self.question_label.setText(question)
+
+        self.motivational_label.setText(random.choice(motivational_quotes))
+
+        self.enable_cheat_button()
 
     def check_answer(self):
         try:
-            user_answer = int(self.answer_entry.get())
+            user_answer = int(self.answer_entry.text())
             if user_answer == self.answer:
                 self.change_color("green")
-                self.root.after(int(self.fade_speed * 1000), self.change_color, "white")
-                self.generate_question()
+                self.answer_color_timer.start(2000)
+                self.generate_question_timer.start(2000)
             else:
                 self.change_color("red")
-                self.root.after(int(self.fade_speed * 1000), self.change_color, "white")
+                self.answer_color_timer.start(2000)
         except ValueError:
-            messagebox.showerror("Error", "Please enter a valid number.")
-            self.answer_entry.delete(0, tk.END)
-
-    def check_answer(self):
-        try:
-            user_answer = int(self.answer_entry.get())
-            if user_answer == self.answer:
-                self.change_color("green")
-                self.root.after(int(self.fade_speed * 1000), self.change_color, "white")
-                self.root.after(2000, self.change_color, "white")  # Wait for 2 seconds before turning the color back to white
-                self.generate_question()
-            else:
-                self.change_color("red")
-                self.root.after(int(self.fade_speed * 1000), self.change_color, "white")
-                self.root.after(2000, self.change_color, "white")  # Wait for 2 seconds before turning the color back to white
-        except ValueError:
-            messagebox.showerror("Error", "Please enter a valid number.")
-            self.answer_entry.delete(0, tk.END)
-
-    def update_cheat_counter(self):
-        self.cheat_counter_label.config(text=f"Cheat uses left: {self.cheat_uses}")
-
-    def change_color(self, color):
-        self.root.config(bg=color)
-        self.current_color = color
+            QMessageBox.critical(self, "Error", "Please enter a valid number.")
+            self.answer_entry.clear()
 
     def cheat_answer(self):
         if self.cheat_uses > 0:
-            self.answer_entry.delete(0, tk.END)
-            self.answer_entry.insert(0, str(self.answer))
+            self.answer_entry.setText(str(self.answer))
             self.cheat_uses -= 1
             self.update_cheat_counter()
+            self.disable_cheat_button()
+            if self.cheat_uses == 0:
+                self.disable_cheat_button()
         else:
-            messagebox.showinfo("Cheat Limit", "You have exhausted all cheat uses.")
+            QMessageBox.information(self, "Cheat Limit", "You have exhausted all cheat uses.")
+
+    def update_cheat_counter(self):
+        self.cheat_counter_label.setText(f"Cheat uses left: {self.cheat_uses}")
+
+    def change_color(self, color):
+        self.current_color = color
+        self.setStyleSheet(f"background-color: {color};")
+        self.question_label.setStyleSheet(f"background-color: {color};")
+        self.motivational_label.setStyleSheet(f"background-color: {color};")
+        self.cheat_counter_label.setStyleSheet(f"background-color: {color};")
+        self.answer_entry.setStyleSheet("background-color: white;")
+
+    def reset_color(self):
+        self.change_color("white")
+        self.answer_color_timer.stop()
+
+    def disable_cheat_button(self):
+        self.cheat_button.setEnabled(False)
+
+    def enable_cheat_button(self):
+        self.cheat_button.setEnabled(True)
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = MathGame(root)
-    root.mainloop()
+    app = QApplication(sys.argv)
+    window = MathGame()
+    window.show()
+    sys.exit(app.exec_())
