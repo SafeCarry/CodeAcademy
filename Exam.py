@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QPushButton, QMessageBox
-from PyQt5.QtGui import QIcon, QFont, QPixmap
+from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QTimer
 import random
 
@@ -17,17 +17,21 @@ motivational_quotes = [
     "Amazing math skills"
 ]
 
+# Sukuriamas pagrindinis langas, paveldintis iš QMainWindow klasės
 class MathGame(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Simple Math Game")
-        self.setWindowIcon(QIcon('doomed.ico'))  # Set the GIF as the program's icon
+        # Nustatomas langas: pavadinimas, ikona ir dydis
+        self.setWindowTitle("Mafs :3")
+        self.setWindowIcon(QIcon('doomed.ico'))  
         self.setGeometry(100, 100, 400, 250)
 
+        # Kintamieji, skirti saugoti dabartinę spalvą, juostelės greitį ir panaudojimų skaičių
         self.current_color = "white"
         self.fade_speed = 0.1
         self.cheat_uses = 5
 
+        # Sukuriami elementai: klausimo ir motyvuojančio citatos etikečių laukai, įvesties laukas atsakymui, mygtukai "Check" ir "Cheat", bei etiketė su "Cheat uses left" informacija
         self.question_label = QLabel(self)
         self.question_label.setGeometry(20, 20, 360, 50)
         self.question_label.setAlignment(Qt.AlignCenter)
@@ -54,14 +58,18 @@ class MathGame(QMainWindow):
         self.cheat_counter_label.setAlignment(Qt.AlignCenter)
         self.update_cheat_counter()
 
+        # Sukuriami laikmatis, kuris leis keisti klausimus ir motyvuojančias citatas
         self.generate_question_timer = QTimer(self)
         self.generate_question_timer.timeout.connect(self.generate_question)
 
+        # Sukuriami laikmačiai, kurie valdys spalvos keitimą ir laukų išvalymą
         self.answer_color_timer = QTimer(self)
         self.answer_color_timer.timeout.connect(self.reset_color)
 
+        # Sukuriama pirminė sąsaja
         self.generate_question()
 
+    # Funkcija generuojanti naujus klausimus ir motyvuojančias citatas
     def generate_question(self):
         num1 = random.randint(1, 5000)
         num2 = random.randint(1, 5000)
@@ -74,6 +82,7 @@ class MathGame(QMainWindow):
 
         self.enable_cheat_button()
 
+    # Funkcija tikrinanti vartotojo įvestį
     def check_answer(self):
         try:
             user_answer = int(self.answer_entry.text())
@@ -85,9 +94,10 @@ class MathGame(QMainWindow):
                 self.change_color("red")
                 self.answer_color_timer.start(2000)
         except ValueError:
-            QMessageBox.critical(self, "Error", "Please enter a valid number.")
+            QMessageBox.critical(self, "Error", "Only write valid numbers.")
             self.answer_entry.clear()
 
+    # Funkcija, leidžianti naudoti "cheat" mygtuką ir atnaujinanti jų skaičių
     def cheat_answer(self):
         if self.cheat_uses > 0:
             self.answer_entry.setText(str(self.answer))
@@ -99,9 +109,11 @@ class MathGame(QMainWindow):
         else:
             QMessageBox.information(self, "Cheat Limit", "You have exhausted all cheat uses.")
 
+    # Funkcija, atnaujinanti "Cheat uses left" laukelį
     def update_cheat_counter(self):
-        self.cheat_counter_label.setText(f"Cheat uses left: {self.cheat_uses}")
+        self.cheat_counter_label.setText(f"Remaining Cheats: {self.cheat_uses}")
 
+    # Funkcija, keičianti langų spalvą
     def change_color(self, color):
         self.current_color = color
         self.setStyleSheet(f"background-color: {color};")
@@ -110,13 +122,16 @@ class MathGame(QMainWindow):
         self.cheat_counter_label.setStyleSheet(f"background-color: {color};")
         self.answer_entry.setStyleSheet("background-color: white;")
 
+    # Funkcija, grąžinanti langų spalvą į baltą
     def reset_color(self):
         self.change_color("white")
         self.answer_color_timer.stop()
 
+    # Funkcija, išjungianti "Cheat" mygtuką
     def disable_cheat_button(self):
         self.cheat_button.setEnabled(False)
 
+    # Funkcija, įjungianti "Cheat" mygtuką
     def enable_cheat_button(self):
         self.cheat_button.setEnabled(True)
 
