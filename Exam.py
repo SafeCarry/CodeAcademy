@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
 import random
-import time
 
 
 class MathGame:
@@ -34,19 +33,15 @@ class MathGame:
     def generate_question(self):
         num1 = random.randint(1, 5000)
         num2 = random.randint(1, 5000)
-        operator = random.choice(['+', '-', '*', '/'])
+        operator = random.choice(['+', '*'])  # Removing division operation
         question = f"{num1} {operator} {num2}"
         self.answer = eval(question)
         self.question_label.config(text=question)
 
     def check_answer(self):
         try:
-            user_answer = self.answer_entry.get().strip()
-            if '/' in self.question_label.cget('text'): 
-                user_answer = round(float(user_answer), 2)
-            else:
-                user_answer = int(user_answer) 
-            if user_answer == round(self.answer):
+            user_answer = int(self.answer_entry.get())
+            if user_answer == self.answer:
                 self.change_color("green")
                 self.root.after(int(self.fade_speed * 1000), self.change_color, self.current_color)
                 self.generate_question()
@@ -56,7 +51,6 @@ class MathGame:
         except ValueError:
             messagebox.showerror("Error", "Please enter a valid number.")
             self.answer_entry.delete(0, tk.END)
-
 
     def cheat_answer(self):
         self.answer_entry.delete(0, tk.END)
