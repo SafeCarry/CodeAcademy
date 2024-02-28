@@ -41,11 +41,11 @@ class MathGame:
 
     def check_answer(self):
         try:
-            user_answer = self.answer_entry.get().strip()  # Get user's input
-            if '/' in self.question_label.cget('text'):  # If the question involves division
-                user_answer = round(float(user_answer), 2)  # Convert user's answer to float and round to 2 decimal places
+            user_answer = self.answer_entry.get().strip()
+            if '/' in self.question_label.cget('text'): 
+                user_answer = round(float(user_answer), 2)
             else:
-                user_answer = int(user_answer)  # Convert user's answer to integer
+                user_answer = int(user_answer) 
             if user_answer == round(self.answer):
                 self.change_color("green")
                 self.root.after(int(self.fade_speed * 1000), self.change_color, self.current_color)
