@@ -5,16 +5,16 @@ from PyQt5.QtCore import Qt, QTimer
 import random
 
 motivational_quotes = [
-    "You're beautiful, keep going!",
+    "You're amazing!",
     "You're doing great!",
     "Wow! So good!",
     "Great job!",
     "Woo!",
-    "YEAAH! YOU'RE SO GOOD",
-    "Smarty pants",
+    "YES! You're so good!",
+    "Smarty",
     ":)",
     "Wow",
-    "Amazing math skills"
+    "Good math skills!"
 ]
 
 # Sukuriamas pagrindinis langas, paveldintis iš QMainWindow klasės
@@ -89,12 +89,12 @@ class MathGame(QMainWindow):
             if user_answer == self.answer:
                 self.change_color("green")
                 self.answer_color_timer.start(2000)
-                self.generate_question_timer.start(2000)
+                self.generate_question()  # Generuojamas naujas klausimas tik tada, kai atsakymas teisingas
             else:
                 self.change_color("red")
                 self.answer_color_timer.start(2000)
         except ValueError:
-            QMessageBox.critical(self, "Error", "Only write valid numbers.")
+            QMessageBox.critical(self, "Error", "Enter a valid Number.")
             self.answer_entry.clear()
 
     # Funkcija, leidžianti naudoti "cheat" mygtuką ir atnaujinanti jų skaičių
@@ -107,11 +107,11 @@ class MathGame(QMainWindow):
             if self.cheat_uses == 0:
                 self.disable_cheat_button()
         else:
-            QMessageBox.information(self, "Cheat Limit", "You have exhausted all cheat uses.")
+            QMessageBox.information(self, "Cheat Limit", "Cheat limit reached.")
 
     # Funkcija, atnaujinanti "Cheat uses left" laukelį
     def update_cheat_counter(self):
-        self.cheat_counter_label.setText(f"Remaining Cheats: {self.cheat_uses}")
+        self.cheat_counter_label.setText(f"Cheats left: {self.cheat_uses}")
 
     # Funkcija, keičianti langų spalvą
     def change_color(self, color):
